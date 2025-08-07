@@ -1,0 +1,82 @@
+# Pseudocode for handling contributions and closing a deal
+class Deal
+  attr_accessor :price_cents, :shares, :contributions
+
+  def initialize(price_cents)
+    @price_cents = price_cents
+    @shares = 0
+    @contributions = [] # [{user_id: 1, amount: 100, start: 1, end: 100}]
+  end
+
+  def add_contribution(user_id, amount_cents)
+    start_range = @shares + 1
+    end_range = @shares + amount_cents
+    @contributions << { user_id: user_id, amount: amount_cents, start: start_range, end: end_range }
+    @shares += amount_cents
+
+    close_deal if @shares >= @price_cents
+  end
+
+  def close_deal
+    winning_number = rand(1..@price_cents)
+    winner = @contributions.find do |c|
+      winning_number.between?(c[:start], c[:end])
+    end
+    assign_product_to(winner[:user_id])
+  end
+
+  def assign_product_to(user_id)
+    puts "Deal closed! User #{user_id} wins the right to buy the item."
+  end
+end
+
+#Simplified Data Model Design
+- id: UUID
+- email: String
+- balance: Integer (cents)
+- glitches: Integer
+- glorions: Integer
+- created_at: Timestamp
+
+#Items
+- id: UUID
+- seller_id: UserID
+- title: String
+- description: Text
+- price_cents: Integer
+- is_active: Boolean
+- created_at: Timestamp
+
+#Contributions
+- id: UUID
+- user_id: UserID
+- item_id: ItemID
+- amount_cents: Integer
+- start_range: Integer
+- end_range: Integer
+- is_npn: Boolean
+- created_at: Timestamp
+
+#Deals
+- id: UUID
+- item_id: ItemID
+- winner_id: UserID
+- closed_at: Timestamp
+
+#JuryVerdicts
+- id: UUID
+- item_id: ItemID
+- jury_user_id: UserID
+- penalty_cents: Integer
+- penalty_time: Timestamp
+- penalty_rating: Integer
+- justification: Text
+- created_at: Timestamp
+
+#Rewards
+- id: UUID
+- user_id: UserID
+- reward_type: enum [glitch, glorion, bonus_share]
+- source: enum [purchase, sale, jury, promo, profit_spread]
+- quantity: Integer
+- created_at: Timestamp
